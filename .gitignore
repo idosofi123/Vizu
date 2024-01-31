@@ -11,4 +11,4 @@ Binaries/
 Makefile
 
 # Exclude specific paths from ignore
-!Vendor/Binaries
+!Dependencies/Binaries

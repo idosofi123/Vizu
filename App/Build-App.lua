@@ -10,8 +10,6 @@ project "VizuApp"
    includedirs
    {
       "Source",
-
-	  -- Include Core
 	  "../Core/Source"
    }
 
