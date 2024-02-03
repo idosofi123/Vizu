@@ -1,8 +1,11 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <VizuCore/test.hpp>
 
-int main()
-{
-    auto window = sf::RenderWindow{ { 1920u, 1080u }, "CMake SFML Project" };
+int main() {
+
+    auto window = sf::RenderWindow{{1920u, 1080u}, "CMake SFML Project"};
     window.setFramerateLimit(144);
 
     while (window.isOpen())
