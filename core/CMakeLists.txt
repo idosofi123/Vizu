@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.16)
 project(VizuCore LANGUAGES CXX)
 
 set(SOURCE_FILE_LIST
-"src/test.cpp"
+"src/SimulationMap.cpp"
+"src/Object.cpp"
+"src/Platform.cpp"
+"src/Ball.cpp"
 )
 
 add_library(VizuCore ${SOURCE_FILE_LIST})
