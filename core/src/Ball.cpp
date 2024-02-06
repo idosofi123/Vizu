@@ -15,9 +15,18 @@ namespace Vizu {
         return this->velocity;
     }
 
-    void Ball::advance(int frames, const Vector<float> &externalForce) {
+    void Ball::advance(int frames, const float &gravitationalForce) {
 
     }
+
+    const float& Ball::getRadius() const {
+        return this->radius;
+    }
+
+    void Ball::multVelocity(const Vector<float> &scalar) {
+        this->velocity *= scalar;
+    }
+
 
     Ball::~Ball() {
 

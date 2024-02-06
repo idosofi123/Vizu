@@ -13,8 +13,10 @@ namespace Vizu {
     public:
         Ball(Vector<float> initialPosition, float radius);
         void addVelocity(const Vector<float> &force);
+        void multVelocity(const Vector<float> &scalar);
         const Vector<float>& getVelocity() const;
-        void advance(int frames = 1, const Vector<float> &externalForce = {0.0f, 0.0f});
+        void advance(int frames = 1, const float &gravitationalForce = 0.0f);
+        const float& getRadius() const;
         ~Ball();
 
     };

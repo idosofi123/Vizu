@@ -15,3 +15,6 @@ target_include_directories(VizuCore
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+# Set C++ dialect version
+target_compile_features(VizuCore PRIVATE cxx_std_17)

@@ -3,11 +3,15 @@
 
 namespace Vizu {
 
-    Platform::Platform(Vector<float> position, int width) : Object(position), width(width) {
+    Platform::Platform(Vector<float> position, float width) : Object(position), width(width) {
 
     }
 
     Platform::~Platform() {
 
+    }
+
+    const float& Platform::getWidth() const {
+        return this->width;
     }
 }

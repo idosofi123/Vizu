@@ -7,13 +7,13 @@ namespace Vizu {
     class Platform : public Object {
 
     private:
-        int width;
+        float width;
 
     public:
-        static const int PLATFORM_HEIGHT = 10;
-        Platform(Vector<float> position, int width);
+        static constexpr float PLATFORM_HEIGHT = 10.0f;
+        Platform(Vector<float> position, float width);
+        const float& getWidth() const;
         ~Platform();
-
     };
 
 }

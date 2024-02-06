@@ -11,25 +11,29 @@ namespace Vizu {
 
     private:
         int frameRate;
+        std::vector<int> beatFrameIds;
         std::vector<Platform> platforms;
         Ball ball;
         int nextPlatformIndex = 0;
         int currentFrame = 0;
-        Vector<float> constantForce;
+        float gravitationalForce;
+        float ballMovementSpeed;
         float energyLossFactor;
+
+        inline static float framesToNextCollision(const float &currentVelocity, const float &gravitationalForce);
 
     public:
         SimulationMap(
             int frameRate,
-            const std::vector<int> &beatFrameIds,
+            std::vector<int> beatFrameIds,
             Vector<float> ballInitialPosition,
             float ballRadius,
-            Vector<float> constantForce,
+            float gravitationalForce,
+            float ballMovementSpeed,
             float energyLossFactor);
-        ~SimulationMap();
         void advance(int frames = 1);
-        void reset();
         const Ball& getBall() const;
         const std::vector<Platform>& getPlatforms() const;
+        ~SimulationMap();
     };
 }
