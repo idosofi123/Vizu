@@ -21,7 +21,7 @@ namespace Vizu {
 
         std::vector<std::pair<Vector<float>, Vector<float>>> ballStates;
 
-        this->ball.addVelocity({ballMovementSpeed, 0});
+        this->ball.addVelocity({ballMovementSpeed, gravitationalForce});
 
         for (int frameId : beatFrameIds) {
             this->advance(frameId - this->currentFrame);

@@ -4,7 +4,7 @@ namespace Vizu {
 
     class Object {
 
-    private:
+    protected:
         Vector<float> position;
 
     public:

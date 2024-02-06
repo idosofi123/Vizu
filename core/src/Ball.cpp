@@ -3,9 +3,7 @@
 
 namespace Vizu {
 
-    Ball::Ball(Vector<float> initialPosition, float radius) : Object(initialPosition), radius(radius), velocity({0.0f, 0.0f}) {
-
-    }
+    Ball::Ball(Vector<float> initialPosition, float radius) : Object(initialPosition), radius(radius), velocity({0.0f, 0.0f}) { }
 
     void Ball::addVelocity(const Vector<float> &force) {
         this->velocity += force;
@@ -16,7 +14,8 @@ namespace Vizu {
     }
 
     void Ball::advance(int frames, const float &gravitationalForce) {
-
+        this->position += {frames * this->velocity.x, (frames / 2.0f) * (2 * this->velocity.y + (frames - 1) * gravitationalForce)};
+        this->velocity.y += frames * gravitationalForce;
     }
 
     const float& Ball::getRadius() const {
