@@ -25,7 +25,6 @@ namespace Vizu {
 
         for (int frameId : beatFrameIds) {
             this->advance(frameId - this->currentFrame);
-            this->ball.multVelocity({1, -energyLossFactor});
             ballStates.push_back({this->ball.getPosition(), this->ball.getVelocity()});
         }
 
@@ -56,13 +55,20 @@ namespace Vizu {
         }
         
         this->currentFrame = 0;
+        this->nextCollisionIndex = 0;
         this->ball.setPosition(ballInitialPosition);
         this->ball.multVelocity({1, 0});
     }
 
     void SimulationMap::advance(int frames) {
+
         this->ball.advance(frames, this->gravitationalForce);
         this->currentFrame += frames;
+
+        if (this->nextCollisionIndex < this->beatFrameIds.size() && this->beatFrameIds[this->nextCollisionIndex] == this->currentFrame) {
+            this->ball.multVelocity({1, -this->energyLossFactor});
+            ++this->nextCollisionIndex;
+        }
     }
     
     const Ball& SimulationMap::getBall() const {

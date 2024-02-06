@@ -14,7 +14,7 @@ namespace Vizu {
         std::vector<int> beatFrameIds;
         std::vector<Platform> platforms;
         Ball ball;
-        int nextPlatformIndex = 0;
+        int nextCollisionIndex = 0;
         int currentFrame = 0;
         float gravitationalForce;
         float ballMovementSpeed;
