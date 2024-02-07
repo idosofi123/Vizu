@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 project(VizuApp LANGUAGES CXX)
 
 set(SOURCE_FILE_LIST 
-"src/main.cpp"
+"src/Main.cpp"
+"src/SoundProcessing.h"
+"src/SoundProcessing.cpp"
 )
 
 add_executable(VizuApp ${SOURCE_FILE_LIST})

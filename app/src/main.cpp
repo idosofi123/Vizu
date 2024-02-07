@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <VizuCore/SimulationMap.hpp>
+#include "SoundProcessing.h"
 #include <vector>
-#include <iostream>
 
 int main() {
 
@@ -14,32 +14,17 @@ int main() {
     // window.setFramerateLimit(144);
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\ellinia.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\evree.wav")) {
         return -1;
     }
 
-    auto sampleCount = soundBuffer.getSampleCount();
-    auto chan = soundBuffer.getChannelCount();
-
-    sf::Int16 samplesPerFrame = soundBuffer.getSampleRate() / FPS;
-    std::vector<sf::Int16> frameAmplitudes(sampleCount / samplesPerFrame + !!(sampleCount % samplesPerFrame));
-    auto samples = soundBuffer.getSamples();
-
-    sf::Int16 maxamp = 0;
-
-    for (sf::Uint64 i = 0; i < sampleCount; ++i) {
-        frameAmplitudes[i / samplesPerFrame] = std::max(
-            frameAmplitudes[i / samplesPerFrame],
-            static_cast<sf::Int16>(std::abs(samples[i]))
-        );
-
-        maxamp = std::max(maxamp, frameAmplitudes[i / samplesPerFrame]);
-    }
+    auto frameAmplitudes = SoundProcessing::generateFrameAmplitudes(soundBuffer, FPS);
+    auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
 
     std::vector<int> beatFrameIds; 
 
     sf::RectangleShape amplitudeIndicator;
-    amplitudeIndicator.setFillColor(sf::Color::Red);
+    amplitudeIndicator.setFillColor(sf::Color::White);
 
     sf::Sound sound;
     
@@ -51,7 +36,6 @@ int main() {
     sf::Font font;
     font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
     sf::Text text("", font, 24);
-    text.setPosition({10, 30});
 
     float elapsedSeconds = 0;
 
@@ -60,6 +44,8 @@ int main() {
 
     sf::Clock clock;
 
+    constexpr sf::Int32 PLATFORM_MIN_DELTA = 500000;
+    int platcount = 0;
 
     while (window.isOpen()) {
         
@@ -67,6 +53,12 @@ int main() {
 
         while (elapsedSeconds >= SECONDS_PER_FRAME) {
             ++currentFrame;
+            if (currentFrame < frameAmplitudes.size() && frameAmplitudes[currentFrame] - frameAmplitudes[currentFrame - 1] >= PLATFORM_MIN_DELTA) {
+                amplitudeIndicator.setFillColor(sf::Color::Red);
+                ++platcount;
+            } else {
+                amplitudeIndicator.setFillColor(sf::Color::White);
+            }
             elapsedSeconds -= SECONDS_PER_FRAME;
         }
 
@@ -77,7 +69,16 @@ int main() {
         }
         window.draw(amplitudeIndicator);
 
-        text.setString(std::to_string(currentFrame));
+        text.setPosition({10, 30});
+        text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
+        window.draw(text);
+
+        text.setPosition({10, 50});
+        text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
+        window.draw(text);
+
+        text.setPosition({10, 70});
+        text.setString("Platform count: " + std::to_string(platcount));
         window.draw(text);
 
         window.display();
