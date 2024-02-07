@@ -2,15 +2,18 @@
 #include <SFML/Audio.hpp>
 #include <VizuCore/SimulationMap.hpp>
 #include <vector>
+#include <iostream>
 
 int main() {
 
     constexpr unsigned int FPS = 60;
+    constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
 
-    window.setFramerateLimit(FPS);
-    
+    auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };    
+
+    // window.setFramerateLimit(144);
+
     sf::SoundBuffer soundBuffer;
-
     if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\ellinia.wav")) {
         return -1;
     }
@@ -35,25 +38,36 @@ int main() {
 
     std::vector<int> beatFrameIds; 
 
-
     sf::RectangleShape amplitudeIndicator;
     amplitudeIndicator.setFillColor(sf::Color::Red);
 
     sf::Sound sound;
-    sound.setBuffer(soundBuffer);
-    sound.play();
     
     int currentFrame = 0;
     
     sf::RenderTexture frameTexture;
     frameTexture.create(1280, 1080);
 
-    while (window.isOpen()) {
+    sf::Font font;
+    font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
+    sf::Text text("", font, 24);
+    text.setPosition({10, 30});
 
-        for (auto event = sf::Event{}; window.pollEvent(event);) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
+    float elapsedSeconds = 0;
+
+    sound.setBuffer(soundBuffer);
+    sound.play();
+
+    sf::Clock clock;
+
+
+    while (window.isOpen()) {
+        
+        elapsedSeconds += clock.restart().asSeconds();
+
+        while (elapsedSeconds >= SECONDS_PER_FRAME) {
+            ++currentFrame;
+            elapsedSeconds -= SECONDS_PER_FRAME;
         }
 
         window.clear(sf::Color{51, 171, 240, 255});
@@ -63,7 +77,9 @@ int main() {
         }
         window.draw(amplitudeIndicator);
 
+        text.setString(std::to_string(currentFrame));
+        window.draw(text);
+
         window.display();
-        ++currentFrame;
     }
 }
