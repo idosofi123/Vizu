@@ -25,6 +25,7 @@ FetchContent_MakeAvailable(SFML)
 
 # Linking SFML
 target_link_libraries(VizuApp PRIVATE sfml-graphics)
+target_link_libraries(VizuApp PRIVATE sfml-audio)
 
 if(WIN32)
     add_custom_command(

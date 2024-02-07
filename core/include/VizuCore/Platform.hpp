@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Object.hpp"
+#include "Vector.hpp"
 
 namespace Vizu {
 

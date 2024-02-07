@@ -1,6 +1,6 @@
 #pragma once
-#include "VizuCore/Object.hpp"
-#include "VizuCore/Vector.hpp"
+#include "Object.hpp"
+#include "Vector.hpp"
 
 namespace Vizu {
 
