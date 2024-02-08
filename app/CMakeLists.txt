@@ -11,7 +11,7 @@ set(SOURCE_FILE_LIST
 add_executable(VizuApp ${SOURCE_FILE_LIST})
 
 # Set C++ dialect version
-target_compile_features(VizuApp PRIVATE cxx_std_17)
+target_compile_features(VizuApp PRIVATE cxx_std_20)
 
 # Linking core library
 target_link_libraries(VizuApp PRIVATE VizuCore)

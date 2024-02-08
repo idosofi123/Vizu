@@ -13,6 +13,7 @@ namespace Vizu {
         int frameRate;
         std::vector<int> beatFrameIds;
         std::vector<Platform> platforms;
+        Vector<float> ballInitialPosition;
         Ball ball;
         int nextCollisionIndex = 0;
         int currentFrame = 0;
@@ -34,6 +35,7 @@ namespace Vizu {
         void advance(int frames = 1);
         const Ball& getBall() const;
         const std::vector<Platform>& getPlatforms() const;
+        void reset();
         ~SimulationMap();
     };
 }

@@ -22,6 +22,7 @@ int main() {
     auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
 
     std::vector<int> beatFrameIds; 
+    Vizu::SimulationMap simulationMap(FPS, {60, 70, 120, 180, 240, 300, 350}, {100,100}, 10, 0.1, 2, 0.9f );
 
     sf::RectangleShape amplitudeIndicator;
     amplitudeIndicator.setFillColor(sf::Color::White);
@@ -36,6 +37,12 @@ int main() {
     sf::Font font;
     font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
     sf::Text text("", font, 24);
+
+    sf::CircleShape ballTexture(10);
+    ballTexture.setFillColor(sf::Color::Green);
+
+    sf::RectangleShape platformTexture;
+    platformTexture.setFillColor(sf::Color::Magenta);
 
     float elapsedSeconds = 0;
 
@@ -52,6 +59,7 @@ int main() {
         elapsedSeconds += clock.restart().asSeconds();
 
         while (elapsedSeconds >= SECONDS_PER_FRAME) {
+            simulationMap.advance();
             ++currentFrame;
             if (currentFrame < frameAmplitudes.size() && frameAmplitudes[currentFrame] - frameAmplitudes[currentFrame - 1] >= PLATFORM_MIN_DELTA) {
                 amplitudeIndicator.setFillColor(sf::Color::Red);
@@ -80,6 +88,19 @@ int main() {
         text.setPosition({10, 70});
         text.setString("Platform count: " + std::to_string(platcount));
         window.draw(text);
+
+        const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
+
+        for (const auto &platform : simulationMap.getPlatforms()) {
+
+            const auto &[platformX, platformY] = platform.getPosition();
+            platformTexture.setPosition(platformX, platformY);
+            platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
+            window.draw(platformTexture);
+        }
+
+        ballTexture.setPosition(ballX, ballY);
+        window.draw(ballTexture);
 
         window.display();
     }

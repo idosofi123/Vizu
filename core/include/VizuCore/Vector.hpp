@@ -14,8 +14,8 @@ namespace Vizu {
         }
 
         Vector& operator*=(const Vector<T> &val) {
-            this->x += val.x;
-            this->y += val.y;
+            this->x *= val.x;
+            this->y *= val.y;
             return *this;
         }
 
