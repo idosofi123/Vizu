@@ -1,5 +1,6 @@
 #include <SFML/Audio.hpp>
 #include <vector>
+#include "SoundProcessing.h"
 
 namespace SoundProcessing {
 
@@ -24,5 +25,19 @@ namespace SoundProcessing {
         }
 
         return frameAmplitudes;
+    }
+
+    std::vector<int> generateKeyFrameIds(const std::vector<sf::Int32> &frameAmplitudes) {
+
+        constexpr sf::Int32 PLATFORM_MIN_DELTA = 750000;
+
+        std::vector<int> keyFrames{};
+        for (sf::Uint64 i = 1; i < frameAmplitudes.size(); ++i) {
+            if (frameAmplitudes[i] - frameAmplitudes[i - 1] > PLATFORM_MIN_DELTA) {
+                keyFrames.push_back(i);
+            }
+        }
+
+        return keyFrames;
     }
 }

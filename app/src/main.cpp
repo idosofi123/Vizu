@@ -9,20 +9,20 @@ int main() {
     constexpr unsigned int FPS = 60;
     constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
 
-    auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };    
-
-    // window.setFramerateLimit(144);
+    auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\evree.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\ellinia.wav")) {
         return -1;
     }
 
     auto frameAmplitudes = SoundProcessing::generateFrameAmplitudes(soundBuffer, FPS);
+    auto keyFrameIds = SoundProcessing::generateKeyFrameIds(frameAmplitudes);
+
     auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
 
     std::vector<int> beatFrameIds; 
-    Vizu::SimulationMap simulationMap(FPS, {60, 70, 120, 180, 240, 300, 350}, {100,100}, 10, 0.1, 2, 0.9f );
+    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, 10, 0.2f, 2, 0.6f);
 
     sf::RectangleShape amplitudeIndicator;
     amplitudeIndicator.setFillColor(sf::Color::White);
@@ -43,6 +43,11 @@ int main() {
 
     sf::RectangleShape platformTexture;
     platformTexture.setFillColor(sf::Color::Magenta);
+    platformTexture.setOutlineThickness(-1);
+    platformTexture.setOutlineColor(sf::Color::Black);
+
+    sf::View camera;
+    camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
 
     float elapsedSeconds = 0;
 
@@ -51,8 +56,6 @@ int main() {
 
     sf::Clock clock;
 
-    constexpr sf::Int32 PLATFORM_MIN_DELTA = 500000;
-    int platcount = 0;
 
     while (window.isOpen()) {
         
@@ -61,12 +64,6 @@ int main() {
         while (elapsedSeconds >= SECONDS_PER_FRAME) {
             simulationMap.advance();
             ++currentFrame;
-            if (currentFrame < frameAmplitudes.size() && frameAmplitudes[currentFrame] - frameAmplitudes[currentFrame - 1] >= PLATFORM_MIN_DELTA) {
-                amplitudeIndicator.setFillColor(sf::Color::Red);
-                ++platcount;
-            } else {
-                amplitudeIndicator.setFillColor(sf::Color::White);
-            }
             elapsedSeconds -= SECONDS_PER_FRAME;
         }
 
@@ -77,17 +74,17 @@ int main() {
         }
         window.draw(amplitudeIndicator);
 
-        text.setPosition({10, 30});
-        text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
-        window.draw(text);
+        // text.setPosition({10, 30});
+        // text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
+        // window.draw(text);
 
-        text.setPosition({10, 50});
-        text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
-        window.draw(text);
+        // text.setPosition({10, 50});
+        // text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
+        // window.draw(text);
 
-        text.setPosition({10, 70});
-        text.setString("Platform count: " + std::to_string(platcount));
-        window.draw(text);
+        // text.setPosition({10, 70});
+        // text.setString("Platform count: " + std::to_string(platcount));
+        // window.draw(text);
 
         const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
 
@@ -100,6 +97,9 @@ int main() {
         }
 
         ballTexture.setPosition(ballX, ballY);
+        camera.setCenter(ballX + 5, ballY + 5);
+        window.setView(camera);
+
         window.draw(ballTexture);
 
         window.display();
