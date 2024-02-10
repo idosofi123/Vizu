@@ -12,7 +12,7 @@ int main() {
     auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\ellinia.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
         return -1;
     }
 
@@ -22,7 +22,7 @@ int main() {
     auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
 
     std::vector<int> beatFrameIds; 
-    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, 10, 0.2f, 2, 0.6f);
+    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, 10, 0.15f, 3.5f, 0.65f);
 
     sf::RectangleShape amplitudeIndicator;
     amplitudeIndicator.setFillColor(sf::Color::White);
@@ -55,7 +55,6 @@ int main() {
     sound.play();
 
     sf::Clock clock;
-
 
     while (window.isOpen()) {
         

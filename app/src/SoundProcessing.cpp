@@ -29,7 +29,7 @@ namespace SoundProcessing {
 
     std::vector<int> generateKeyFrameIds(const std::vector<sf::Int32> &frameAmplitudes) {
 
-        constexpr sf::Int32 PLATFORM_MIN_DELTA = 750000;
+        constexpr sf::Int32 PLATFORM_MIN_DELTA = 10000000;
 
         std::vector<int> keyFrames{};
         for (sf::Uint64 i = 1; i < frameAmplitudes.size(); ++i) {

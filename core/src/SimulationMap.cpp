@@ -62,14 +62,9 @@ namespace Vizu {
     }
 
     void SimulationMap::advance(int frames) {
-        
 
         this->ball.advance(frames, this->gravitationalForce);
         this->currentFrame += frames;
-
-        if (this->currentFrame == 120) {
-            int a = 1;
-        }
 
         if (this->nextCollisionIndex < this->beatFrameIds.size() && this->beatFrameIds[this->nextCollisionIndex] == this->currentFrame) {
             this->ball.multVelocity({1, -1 * this->energyLossFactor});
