@@ -4,7 +4,13 @@
 namespace Sound {
 
     std::vector<float> toMonoSignal(const std::vector<float> &signal, int channels) {
+        std::vector<float> result(signal.size() / channels);
 
+        for (size_t i = 0; i < signal.size(); ++i) {
+            result[i / channels] += signal[i] / channels;
+        }
+        
+        return result;
     }
 
     std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, const std::function<float(int, int)> &windowFunc) {
