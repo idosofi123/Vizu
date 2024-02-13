@@ -1,6 +1,9 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <numeric>
+#include <complex>
+#include <numbers>
 
 namespace Sound {
 
@@ -36,6 +39,23 @@ namespace Sound {
 
     std::vector<float> dft(const std::vector<float> &signal) {
 
+        const size_t N = signal.size();
+        constexpr float PI = std::numbers::pi;
+
+        std::vector<std::complex<float>> dft(N);
+
+        for (size_t freqI = 0; freqI < N; ++freqI) {
+
+            for (size_t i = 0; i < N; ++i) {
+                
+                dft[freqI] += signal[i] * std::polar(1.0f, -2.0f * PI * (static_cast<float>(i) / N) * freqI);
+            }
+        }
+
+        std::vector<float> result;
+        std::transform(dft.begin(), dft.end(), std::back_inserter(result), [](auto value) { return std::abs(value); });
+
+        return result;
     }
 
     std::vector<unsigned long long> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold) {
