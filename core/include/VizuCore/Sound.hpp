@@ -5,7 +5,7 @@
 namespace Sound {
     
     std::vector<float> toMonoSignal(const std::vector<float> &signal, int channels);
-    std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, const std::function<float(int, int)> &windowFunc);
+    std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, size_t windowSize, size_t hopSize, const std::function<float(size_t, size_t)> &windowFunc);
     std::vector<float> dft(const std::vector<float> &signal);
     std::vector<unsigned long long> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold);
 
