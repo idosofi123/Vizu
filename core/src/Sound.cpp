@@ -32,7 +32,7 @@ namespace Vizu {
 
             for (size_t winI = 0; winI < windows; ++winI) {
                 for (size_t i = 0; i < windowSize; ++i) {
-                    result[winI][i] = signal[winI * hopSize + i] * windowFunc(i, windowSize);
+                    result[winI][i] = signal[winI * hopSize + i] * windowFunc(i, windowSize - 1);
                 }
             }
             
