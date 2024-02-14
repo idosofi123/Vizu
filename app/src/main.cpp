@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <VizuCore/SimulationMap.hpp>
+#include <VizuCore/Sound.hpp>
 #include "SoundProcessing.h"
 #include <vector>
 
@@ -12,7 +13,7 @@ int main() {
     auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Documents\\Audacity\\440.wav")) {
         return -1;
     }
 
@@ -51,6 +52,14 @@ int main() {
 
     float elapsedSeconds = 0;
 
+    std::vector<float> signal(soundBuffer.getSampleCount());
+    for (size_t i = 0; i < signal.size(); i++) {
+        signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
+    }
+    
+    signal = Vizu::Sound::toMonoSignal(signal, soundBuffer.getChannelCount());
+    auto dft = Vizu::Sound::dft(signal);
+
     sound.setBuffer(soundBuffer);
     sound.play();
 
@@ -58,48 +67,49 @@ int main() {
 
     while (window.isOpen()) {
         
-        elapsedSeconds += clock.restart().asSeconds();
+        // elapsedSeconds += clock.restart().asSeconds();
 
-        while (elapsedSeconds >= SECONDS_PER_FRAME) {
-            simulationMap.advance();
-            ++currentFrame;
-            elapsedSeconds -= SECONDS_PER_FRAME;
-        }
+        // while (elapsedSeconds >= SECONDS_PER_FRAME) {
+        //     simulationMap.advance();
+        //     ++currentFrame;
+        //     elapsedSeconds -= SECONDS_PER_FRAME;
+        // }
 
         window.clear(sf::Color{51, 171, 240, 255});
 
-        if (currentFrame < frameAmplitudes.size()) {
-            amplitudeIndicator.setSize({(static_cast<float>(frameAmplitudes[currentFrame]) / maxamp) * 1280, 20});
-        }
-        window.draw(amplitudeIndicator);
+        // if (currentFrame < frameAmplitudes.size()) {
+        //     amplitudeIndicator.setSize({(static_cast<float>(frameAmplitudes[currentFrame]) / maxamp) * 1280, 20});
+        // }
+        // window.draw(amplitudeIndicator);
 
-        // text.setPosition({10, 30});
-        // text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
-        // window.draw(text);
+        // // text.setPosition({10, 30});
+        // // text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
+        // // window.draw(text);
 
-        // text.setPosition({10, 50});
-        // text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
-        // window.draw(text);
+        // // text.setPosition({10, 50});
+        // // text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
+        // // window.draw(text);
 
-        // text.setPosition({10, 70});
-        // text.setString("Platform count: " + std::to_string(platcount));
-        // window.draw(text);
+        // // text.setPosition({10, 70});
+        // // text.setString("Platform count: " + std::to_string(platcount));
+        // // window.draw(text);
 
-        const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
+        // const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
 
-        for (const auto &platform : simulationMap.getPlatforms()) {
+        // for (const auto &platform : simulationMap.getPlatforms()) {
 
-            const auto &[platformX, platformY] = platform.getPosition();
-            platformTexture.setPosition(platformX, platformY);
-            platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
-            window.draw(platformTexture);
-        }
+        //     const auto &[platformX, platformY] = platform.getPosition();
+        //     platformTexture.setPosition(platformX, platformY);
+        //     platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
+        //     window.draw(platformTexture);
+        // }
 
-        ballTexture.setPosition(ballX, ballY);
-        camera.setCenter(ballX + 5, ballY + 5);
-        window.setView(camera);
+        // ballTexture.setPosition(ballX, ballY);
+        // camera.setCenter(ballX + 5, ballY + 5);
+        // window.setView(camera);
 
-        window.draw(ballTexture);
+        // window.draw(ballTexture);
+
 
         window.display();
     }
