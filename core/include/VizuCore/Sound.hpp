@@ -4,10 +4,16 @@
 #include <complex>
 
 namespace Vizu {
+
     namespace Sound {
-        
+
+        using WinFunc = std::function<float(size_t, size_t)>;
+        enum class WindowFunctionType {
+            Hann
+        };
+
         std::vector<float> toMonoSignal(const std::vector<float> &signal, int channels);
-        std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, size_t windowSize, size_t hopSize, const std::function<float(size_t, size_t)> &windowFunc);
+        std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, size_t windowSize, size_t hopSize, WindowFunctionType windowFunctionType);
         std::vector<float> dft(const std::vector<float> &signal);
         std::vector<std::complex<float>> fft(std::vector<float> signal);
         std::vector<unsigned long long> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold);

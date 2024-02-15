@@ -59,10 +59,12 @@ int main() {
     
     signal = Vizu::Sound::toMonoSignal(signal, soundBuffer.getChannelCount());
     auto fft = Vizu::Sound::fft(signal);
-    // auto fft = Vizu::Sound::fft({1,1,1,1,1});
 
-    sound.setBuffer(soundBuffer);
-    sound.play();
+    std::vector<float> fftAbs;
+    std::transform(fft.begin(), fft.end(), std::back_inserter(fftAbs), [](auto complexValue) { return std::abs(complexValue); });
+
+    // sound.setBuffer(soundBuffer);
+    // sound.play();
 
     sf::Clock clock;
 
@@ -77,6 +79,24 @@ int main() {
         // }
 
         window.clear(sf::Color{51, 171, 240, 255});
+
+        const int bw = 200, pw = 10;
+        int offset = 0;
+        for (size_t i = 0; i < fftAbs.size() / 2; i += bw) {
+
+            auto bar = sf::RectangleShape{};
+            float curramp = 0;
+
+            for (size_t j = 0; j < bw; ++j) {
+                curramp += fftAbs[i + j] / bw;
+            }    
+
+            bar.setPosition(offset + 50, 50);
+            bar.setSize({pw, curramp});
+            offset += pw + 5;
+
+            window.draw(bar);
+        }
 
         // if (currentFrame < frameAmplitudes.size()) {
         //     amplitudeIndicator.setSize({(static_cast<float>(frameAmplitudes[currentFrame]) / maxamp) * 1280, 20});
@@ -111,6 +131,7 @@ int main() {
 
         // window.draw(ballTexture);
 
+        
 
         window.display();
     }
