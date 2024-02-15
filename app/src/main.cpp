@@ -58,7 +58,8 @@ int main() {
     }
     
     signal = Vizu::Sound::toMonoSignal(signal, soundBuffer.getChannelCount());
-    auto dft = Vizu::Sound::dft(signal);
+    auto fft = Vizu::Sound::fft(signal);
+    // auto fft = Vizu::Sound::fft({1,1,1,1,1});
 
     sound.setBuffer(soundBuffer);
     sound.play();
