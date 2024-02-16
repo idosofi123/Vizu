@@ -13,12 +13,13 @@ int main() {
     auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Documents\\Audacity\\440.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\evree.wav")) {
         return -1;
     }
 
     auto frameAmplitudes = SoundProcessing::generateFrameAmplitudes(soundBuffer, FPS);
     auto keyFrameIds = SoundProcessing::generateKeyFrameIds(frameAmplitudes);
+    auto rate = soundBuffer.getSampleRate();
 
     auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
 
@@ -80,19 +81,19 @@ int main() {
 
         window.clear(sf::Color{51, 171, 240, 255});
 
-        const int bw = 200, pw = 10;
+        const int bw = 1000, pw = 10;
         int offset = 0;
         for (size_t i = 0; i < fftAbs.size() / 2; i += bw) {
 
             auto bar = sf::RectangleShape{};
             float curramp = 0;
 
-            for (size_t j = 0; j < bw; ++j) {
+            for (size_t j = 0; j < bw && i + j < fftAbs.size(); ++j) {
                 curramp += fftAbs[i + j] / bw;
             }    
 
             bar.setPosition(offset + 50, 50);
-            bar.setSize({pw, curramp});
+            bar.setSize({pw, std::max(curramp, 5.0f)});
             offset += pw + 5;
 
             window.draw(bar);

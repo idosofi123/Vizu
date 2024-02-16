@@ -16,6 +16,11 @@ namespace Vizu {
                 WindowFunctionType::Hann, [](size_t index, size_t length) {
                     return std::pow(std::sin((static_cast<float>(index) / length) * PI), 2);
                 }
+            },
+            {
+                WindowFunctionType::Identity, [](size_t index, size_t length) {
+                    return 1.0f;
+                }
             }
         };
 
@@ -79,7 +84,7 @@ namespace Vizu {
                 return { signal[0] };
             }
 
-            // Zero-pad signal to reach a length which is a power of 2
+            // Zero-pad the signal to reach a length which is a power of 2
             int msb = 0;
             while ((signal.size() >> msb) > 1) {
                 ++msb;
@@ -112,12 +117,52 @@ namespace Vizu {
             return result;
         }
 
-        std::vector<unsigned long long> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold) {
-            return {};
+        float flux(const std::vector<float> &dftA, const std::vector<float> &dftB) {
+
+            float result{0.0f};
+
+            // Address only the first half of the frequency bins, respecting the Nyquist frequency of the signal
+            for (size_t i = 0; i < dftA.size() / 2; i++) {
+                result += std::max(dftA[i] - dftB[i], 0.0f);
+            }
+
+            return result;
         }
 
-        std::vector<int> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps) {
-            return {};
+        std::vector<size_t> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold) {
+
+            std::vector<size_t> result;
+
+            for (size_t i = 1; i < dftWindows.size(); i++) {
+                if (flux(dftWindows[i], dftWindows[i - 1]) >= threshold) {
+                    result.push_back(i);
+                }
+            }
+
+            return result;
+        }
+
+        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps) {
+
+            audioSignal = toMonoSignal(audioSignal, channels);
+
+            const size_t hopSize = static_cast<size_t>(sampleRate) / static_cast<size_t>(fps);
+
+            // Currently hard-coding 50% overlap between windows, subject to change.
+            const size_t windowSize = hopSize * 2;
+
+            auto windowedSignal = windowSignal(audioSignal, windowSize, hopSize, WindowFunctionType::Hann);
+
+            std::vector<std::vector<float>> dftWindows;
+            for (const auto &window : windowedSignal) {
+                auto fftOfWindow = fft(window);
+                std::vector<float> absoluteFft;
+                std::transform(fftOfWindow.begin(), fftOfWindow.end(), std::back_inserter(absoluteFft), [](auto &compVal) { return std::abs(compVal); });
+
+                dftWindows.push_back(absoluteFft);
+            }
+
+            return detectOnsets(dftWindows, 500.0f);   
         }
     }
 
