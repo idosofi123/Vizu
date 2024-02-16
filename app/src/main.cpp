@@ -4,135 +4,102 @@
 #include <VizuCore/Sound.hpp>
 #include "SoundProcessing.h"
 #include <vector>
+#include <deque>
 
 int main() {
 
     constexpr unsigned int FPS = 60;
     constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
 
+    constexpr float BALL_RADIUS = 10.0f;
+    constexpr float GRAVITATIONAL_FORCE = 0.15f;
+    constexpr float BALL_HORIZONTAL_VEL = 4.0f;
+    constexpr float ENERGY_LOSS_FACTOR = 0.7f;
+    constexpr int BALL_TRAIL_LENGTH = 10;
+
     auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\evree.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
         return -1;
     }
-
-    auto frameAmplitudes = SoundProcessing::generateFrameAmplitudes(soundBuffer, FPS);
-    auto keyFrameIds = SoundProcessing::generateKeyFrameIds(frameAmplitudes);
-    auto rate = soundBuffer.getSampleRate();
-
-    auto maxamp = *std::max_element(frameAmplitudes.begin(), frameAmplitudes.end());
-
-    std::vector<int> beatFrameIds; 
-    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, 10, 0.15f, 3.5f, 0.65f);
-
-    sf::RectangleShape amplitudeIndicator;
-    amplitudeIndicator.setFillColor(sf::Color::White);
-
-    sf::Sound sound;
-    
-    int currentFrame = 0;
-    
-    sf::RenderTexture frameTexture;
-    frameTexture.create(1280, 1080);
-
-    sf::Font font;
-    font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
-    sf::Text text("", font, 24);
-
-    sf::CircleShape ballTexture(10);
-    ballTexture.setFillColor(sf::Color::Green);
-
-    sf::RectangleShape platformTexture;
-    platformTexture.setFillColor(sf::Color::Magenta);
-    platformTexture.setOutlineThickness(-1);
-    platformTexture.setOutlineColor(sf::Color::Black);
-
-    sf::View camera;
-    camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
-
-    float elapsedSeconds = 0;
 
     std::vector<float> signal(soundBuffer.getSampleCount());
     for (size_t i = 0; i < signal.size(); i++) {
         signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
     }
-    
-    signal = Vizu::Sound::toMonoSignal(signal, soundBuffer.getChannelCount());
-    auto fft = Vizu::Sound::fft(signal);
 
-    std::vector<float> fftAbs;
-    std::transform(fft.begin(), fft.end(), std::back_inserter(fftAbs), [](auto complexValue) { return std::abs(complexValue); });
+    auto keyFrameIds = Vizu::Sound::detectedOnsetFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS);
+    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, BALL_RADIUS, GRAVITATIONAL_FORCE, BALL_HORIZONTAL_VEL, ENERGY_LOSS_FACTOR);
 
-    // sound.setBuffer(soundBuffer);
-    // sound.play();
+    sf::Font font;
+    font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
 
+    sf::CircleShape ballTexture(BALL_RADIUS);
+
+    std::deque<Vizu::Vector<float>> ballTrail;
+
+    sf::RectangleShape platformTexture;
+    platformTexture.setFillColor(sf::Color::Green);
+    platformTexture.setOutlineThickness(-1);
+    platformTexture.setOutlineColor(sf::Color::Yellow);
+
+    sf::View camera;
+    camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
+
+    sf::Sound sound;
+    sound.setBuffer(soundBuffer);
+    sound.play();
+
+    int currentFrame = 0;
+    float elapsedSeconds = 0;
     sf::Clock clock;
 
     while (window.isOpen()) {
         
-        // elapsedSeconds += clock.restart().asSeconds();
+        elapsedSeconds += clock.restart().asSeconds();
 
-        // while (elapsedSeconds >= SECONDS_PER_FRAME) {
-        //     simulationMap.advance();
-        //     ++currentFrame;
-        //     elapsedSeconds -= SECONDS_PER_FRAME;
-        // }
+        while (elapsedSeconds >= SECONDS_PER_FRAME) {
 
-        window.clear(sf::Color{51, 171, 240, 255});
+            ballTrail.push_back(simulationMap.getBall().getPosition());
+            if (ballTrail.size() > BALL_TRAIL_LENGTH) {
+                ballTrail.pop_front();
+            }
 
-        const int bw = 1000, pw = 10;
-        int offset = 0;
-        for (size_t i = 0; i < fftAbs.size() / 2; i += bw) {
-
-            auto bar = sf::RectangleShape{};
-            float curramp = 0;
-
-            for (size_t j = 0; j < bw && i + j < fftAbs.size(); ++j) {
-                curramp += fftAbs[i + j] / bw;
-            }    
-
-            bar.setPosition(offset + 50, 50);
-            bar.setSize({pw, std::max(curramp, 5.0f)});
-            offset += pw + 5;
-
-            window.draw(bar);
+            simulationMap.advance();
+            ++currentFrame;
+            elapsedSeconds -= SECONDS_PER_FRAME;
         }
 
-        // if (currentFrame < frameAmplitudes.size()) {
-        //     amplitudeIndicator.setSize({(static_cast<float>(frameAmplitudes[currentFrame]) / maxamp) * 1280, 20});
-        // }
-        // window.draw(amplitudeIndicator);
+        for (auto event = sf::Event{}; window.pollEvent(event);) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+        }
 
-        // // text.setPosition({10, 30});
-        // // text.setString("Channel count: " + std::to_string(soundBuffer.getChannelCount()));
-        // // window.draw(text);
+        window.clear(sf::Color{0, 4, 53, 255});
 
-        // // text.setPosition({10, 50});
-        // // text.setString("Platform min. delta: " + std::to_string(PLATFORM_MIN_DELTA));
-        // // window.draw(text);
+        for (const auto &platform : simulationMap.getPlatforms()) {
 
-        // // text.setPosition({10, 70});
-        // // text.setString("Platform count: " + std::to_string(platcount));
-        // // window.draw(text);
+            const auto &[platformX, platformY] = platform.getPosition();
+            platformTexture.setPosition(platformX, platformY);
+            platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
+            window.draw(platformTexture);
+        }
 
-        // const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
+        ballTexture.setFillColor(sf::Color(255, 255, 255, 100));
+        for (const auto &ballTrailPos : ballTrail) {
+            ballTexture.setPosition(ballTrailPos.x, ballTrailPos.y);
+            window.draw(ballTexture);
+        }
 
-        // for (const auto &platform : simulationMap.getPlatforms()) {
+        const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
+        ballTexture.setFillColor(sf::Color::White);
+        ballTexture.setPosition(ballX, ballY);
+        camera.setCenter(ballX + BALL_RADIUS / 2, ballY + BALL_RADIUS / 2);
+        window.setView(camera);
 
-        //     const auto &[platformX, platformY] = platform.getPosition();
-        //     platformTexture.setPosition(platformX, platformY);
-        //     platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
-        //     window.draw(platformTexture);
-        // }
-
-        // ballTexture.setPosition(ballX, ballY);
-        // camera.setCenter(ballX + 5, ballY + 5);
-        // window.setView(camera);
-
-        // window.draw(ballTexture);
-
-        
+        window.draw(ballTexture);
 
         window.display();
     }

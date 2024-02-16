@@ -11,7 +11,7 @@ namespace Vizu {
 
     private:
         int frameRate;
-        std::vector<int> beatFrameIds;
+        std::vector<size_t> beatFrameIds;
         std::vector<Platform> platforms;
         Vector<float> ballInitialPosition;
         Ball ball;
@@ -26,7 +26,7 @@ namespace Vizu {
     public:
         SimulationMap(
             int frameRate,
-            std::vector<int> beatFrameIds,
+            std::vector<size_t> beatFrameIds,
             Vector<float> ballInitialPosition,
             float ballRadius,
             float gravitationalForce,

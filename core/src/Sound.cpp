@@ -117,13 +117,13 @@ namespace Vizu {
             return result;
         }
 
-        float flux(const std::vector<float> &dftA, const std::vector<float> &dftB) {
+        float flux(const std::vector<float> &dftCurr, const std::vector<float> &dftPrev) {
 
             float result{0.0f};
 
             // Address only the first half of the frequency bins, respecting the Nyquist frequency of the signal
-            for (size_t i = 0; i < dftA.size() / 2; i++) {
-                result += std::max(dftA[i] - dftB[i], 0.0f);
+            for (size_t i = 0; i < dftCurr.size() / 2; i++) {
+                result += std::max(dftCurr[i] - dftPrev[i], 0.0f);
             }
 
             return result;
@@ -162,7 +162,7 @@ namespace Vizu {
                 dftWindows.push_back(std::move(absoluteFft));
             }
 
-            return detectOnsets(dftWindows, 500.0f);
+            return detectOnsets(dftWindows, 300.0f);
         }
     }
 

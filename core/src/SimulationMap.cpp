@@ -4,7 +4,7 @@ namespace Vizu {
 
     SimulationMap::SimulationMap(
         int frameRate,
-        std::vector<int> beatFrameIds,
+        std::vector<size_t> beatFrameIds,
         Vector<float> ballInitialPosition,
         float ballRadius,
         float gravitationalForce,
