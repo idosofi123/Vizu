@@ -155,14 +155,14 @@ namespace Vizu {
 
             std::vector<std::vector<float>> dftWindows;
             for (const auto &window : windowedSignal) {
-                auto fftOfWindow = fft(window);
+                auto fftOfWindow = fft(std::move(window));
                 std::vector<float> absoluteFft;
                 std::transform(fftOfWindow.begin(), fftOfWindow.end(), std::back_inserter(absoluteFft), [](auto &compVal) { return std::abs(compVal); });
 
-                dftWindows.push_back(absoluteFft);
+                dftWindows.push_back(std::move(absoluteFft));
             }
 
-            return detectOnsets(dftWindows, 500.0f);   
+            return detectOnsets(dftWindows, 500.0f);
         }
     }
 
