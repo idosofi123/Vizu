@@ -17,7 +17,10 @@ int main() {
     constexpr float ENERGY_LOSS_FACTOR = 0.7f;
     constexpr int BALL_TRAIL_LENGTH = 10;
 
-    auto window = sf::RenderWindow{ { 1280u, 720u }, "Vizu" };
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 16;
+
+    sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
     if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
@@ -87,11 +90,12 @@ int main() {
             window.draw(platformTexture);
         }
 
-        ballTexture.setFillColor(sf::Color(255, 255, 255, 100));
-        for (const auto &ballTrailPos : ballTrail) {
-            ballTexture.setPosition(ballTrailPos.x, ballTrailPos.y);
+        for (size_t i = 0; i < ballTrail.size(); i++) {
+            ballTexture.setPosition(ballTrail[i].x, ballTrail[i].y);
+            ballTexture.setFillColor(sf::Color(255, 255, 255, (static_cast<float>(i + 1) / ballTrail.size()) * 100));
             window.draw(ballTexture);
         }
+        
 
         const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
         ballTexture.setFillColor(sf::Color::White);
