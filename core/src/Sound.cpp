@@ -123,7 +123,7 @@ namespace Vizu {
 
             // Address only the first half of the frequency bins, respecting the Nyquist frequency of the signal
             for (size_t i = 0; i < dftCurr.size() / 2; i++) {
-                result += std::pow(std::max((dftCurr[i] / dftPrev[i]) - 1.0f, 0.0f), 1);
+                result += std::max((dftCurr[i] / dftPrev[i]) - 1.0f, 0.0f);
             }
 
             return result;
