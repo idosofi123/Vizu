@@ -119,11 +119,13 @@ namespace Vizu {
 
         float flux(const std::vector<float> &dftCurr, const std::vector<float> &dftPrev) {
 
+            constexpr float EPSILON = 0.0001f;
+
             float result{0.0f};
 
             // Address only the first half of the frequency bins, respecting the Nyquist frequency of the signal
             for (size_t i = 0; i < dftCurr.size() / 2; i++) {
-                result += std::max((dftCurr[i] / dftPrev[i]) - 1.0f, 0.0f);
+                result += std::max((dftCurr[i] / std::max(dftPrev[i], EPSILON)) - 1.0f, 0.0f);
             }
 
             return result;
