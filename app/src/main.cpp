@@ -23,7 +23,7 @@ int main() {
     sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usayrun.wav")) {
         return -1;
     }
 
@@ -43,9 +43,8 @@ int main() {
     std::deque<Vizu::Vector<float>> ballTrail;
 
     sf::RectangleShape platformTexture;
-    platformTexture.setFillColor(sf::Color::Green);
     platformTexture.setOutlineThickness(-1);
-    platformTexture.setOutlineColor(sf::Color::Yellow);
+    platformTexture.setOutlineColor(sf::Color::Cyan);
 
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
@@ -87,6 +86,7 @@ int main() {
             const auto &[platformX, platformY] = platform.getPosition();
             platformTexture.setPosition(platformX, platformY);
             platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
+            platformTexture.setFillColor(platform.getFrameId() <= currentFrame ? sf::Color::Magenta : sf::Color::Yellow);
             window.draw(platformTexture);
         }
 

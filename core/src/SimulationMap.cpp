@@ -20,18 +20,18 @@ namespace Vizu {
 
         constexpr float ENDS_PLATFORM_PADDING = 20.0f;
 
-        std::vector<std::pair<Vector<float>, Vector<float>>> ballStates;
+        std::vector<std::tuple<Vector<float>, Vector<float>, int>> ballStates;
 
         this->ball.addVelocity({ballMovementSpeed, gravitationalForce});
 
         for (int frameId : this->beatFrameIds) {
             this->advance(frameId - this->currentFrame);
-            ballStates.push_back({this->ball.getPosition(), this->ball.getVelocity()});
+            ballStates.push_back({this->ball.getPosition(), this->ball.getVelocity(), frameId});
         }
 
         for (int i = 0; i < ballStates.size(); ++i) {
 
-            const auto& [ballPos, ballVel] = ballStates[i];
+            const auto& [ballPos, ballVel, frameId] = ballStates[i];
 
             Vector<float> newPosition;
             float newWidth;
@@ -46,7 +46,7 @@ namespace Vizu {
 
             newWidth = (i == ballStates.size() - 1) ?
                 ballPos.x - newPosition.x + ENDS_PLATFORM_PADDING :
-                ballPos.x - newPosition.x + (ballStates[i + 1].first.x - ballPos.x) / 2;
+                ballPos.x - newPosition.x + (std::get<0>(ballStates[i + 1]).x - ballPos.x) / 2;
 
             if (ballVel.y < 0) {
                 newWidth = std::min(
@@ -55,7 +55,7 @@ namespace Vizu {
                 );
             }
 
-            this->platforms.push_back({newPosition, newWidth});
+            this->platforms.push_back({newPosition, newWidth, frameId});
         }
     
         this->reset();
