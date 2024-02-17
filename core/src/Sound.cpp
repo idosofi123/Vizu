@@ -123,7 +123,7 @@ namespace Vizu {
 
             // Address only the first half of the frequency bins, respecting the Nyquist frequency of the signal
             for (size_t i = 0; i < dftCurr.size() / 2; i++) {
-                result += std::pow(std::max(dftCurr[i] - dftPrev[i], 0.0f), 2);
+                result += std::pow(std::max((dftCurr[i] / dftPrev[i]) - 1.0f, 0.0f), 1);
             }
 
             return result;
@@ -159,13 +159,14 @@ namespace Vizu {
             std::vector<std::vector<float>> dftWindows;
             for (const auto &window : windowedSignal) {
                 auto fftOfWindow = fft(std::move(window));
-                std::vector<float> absoluteFft;
-                std::transform(fftOfWindow.begin(), fftOfWindow.end(), std::back_inserter(absoluteFft), [](auto &compVal) { return std::abs(compVal); });
+                std::vector<float> absoluteFft(fftOfWindow.size());
+                std::transform(fftOfWindow.begin(), fftOfWindow.end(), absoluteFft.begin(), [](auto &compVal) { return std::abs(compVal); });
 
                 dftWindows.push_back(std::move(absoluteFft));
             }
 
-            return detectOnsets(dftWindows, 1000.0f);
+            size_t freqBins = dftWindows[0].size();
+            return detectOnsets(dftWindows, 0.55f * freqBins);
         }
     }
 

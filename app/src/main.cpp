@@ -23,7 +23,7 @@ int main() {
     sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\usa.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\tikva.wav")) {
         return -1;
     }
 
