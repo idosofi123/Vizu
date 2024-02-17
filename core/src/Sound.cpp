@@ -151,8 +151,8 @@ namespace Vizu {
 
             const size_t hopSize = static_cast<size_t>(sampleRate) / static_cast<size_t>(fps);
 
-            // Currently hard-coding 50% overlap between windows, subject to change.
-            const size_t windowSize = hopSize * 2;
+            // Currently hard-coding 75% overlap between windows, subject to change.
+            const size_t windowSize = hopSize * 4;
 
             auto windowedSignal = windowSignal(audioSignal, windowSize, hopSize, WindowFunctionType::Hann);
 
@@ -165,7 +165,7 @@ namespace Vizu {
                 dftWindows.push_back(std::move(absoluteFft));
             }
 
-            return detectOnsets(dftWindows, 600.0f);
+            return detectOnsets(dftWindows, 1000.0f);
         }
     }
 
