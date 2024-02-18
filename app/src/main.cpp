@@ -2,7 +2,6 @@
 #include <SFML/Audio.hpp>
 #include <VizuCore/SimulationMap.hpp>
 #include <VizuCore/Sound.hpp>
-#include "SoundProcessing.h"
 #include <vector>
 #include <deque>
 
