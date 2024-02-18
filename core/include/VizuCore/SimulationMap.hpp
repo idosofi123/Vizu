@@ -21,7 +21,7 @@ namespace Vizu {
         float ballMovementSpeed;
         float energyLossFactor;
 
-        inline static float framesToNextCollision(const float &currentVelocity, const float &gravitationalForce);
+        inline static float framesToYDelta(float currentVelocity, float gravitationalForce, float delta);
 
     public:
         SimulationMap(

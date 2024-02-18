@@ -40,6 +40,19 @@ namespace Vizu {
                 this->platforms[i - 1].getPosition().x + this->platforms[i - 1].getWidth() :
                 ballPos.x - ENDS_PLATFORM_PADDING;
 
+            // Prevent floor platforms going in the ball's upward path
+            if (i > 0 && ballVel.y < 0) {
+
+                const auto& [prevBallPos, prevBallVel, prevFrame] = ballStates[i - 1];
+
+                if (prevBallPos.y > ballPos.y) {
+                    newPosition.x = std::max(
+                        newPosition.x,
+                        prevBallPos.x + framesToYDelta(prevBallVel.y, gravitationalForce, ballPos.y - prevBallPos.y) * ballVel.x + ballRadius
+                    );
+                }
+            }
+
             newPosition.y = (ballVel.y < 0) ?
                 ballPos.y + this->ball.getRadius() * 2 :
                 ballPos.y - Platform::PLATFORM_HEIGHT;
@@ -51,7 +64,7 @@ namespace Vizu {
             if (ballVel.y < 0) {
                 newWidth = std::min(
                     newWidth,
-                    ballPos.x - newPosition.x + framesToNextCollision(ballVel.y, gravitationalForce) * ballVel.x - this->ball.getRadius()
+                    ballPos.x - newPosition.x + framesToYDelta(ballVel.y, gravitationalForce, 0) * ballVel.x - ballRadius
                 );
             }
 
@@ -88,8 +101,8 @@ namespace Vizu {
         return this->platforms;
     }
 
-    inline float SimulationMap::framesToNextCollision(const float &currentVelocity, const float &gravitationalForce) {
-        return 1.0f - (2.0f * currentVelocity / gravitationalForce);
+    inline float SimulationMap::framesToYDelta(float currentVelocity, float gravitationalForce, float delta) {
+        return (gravitationalForce - 2 * currentVelocity + sqrtf(powf(2 * currentVelocity - gravitationalForce, 2) + 8 * delta * gravitationalForce) * (delta == 0 ? 1 : -1)) / (2 * gravitationalForce);
     }
 
     SimulationMap::~SimulationMap() {
