@@ -78,11 +78,30 @@ namespace Vizu {
             return result;
         }
 
-        std::vector<std::complex<float>> fft(std::vector<float> signal) {
+        namespace {
 
-            if (signal.size() == 1) {
-                return { signal[0] };
+            std::vector<std::complex<float>> fftRecursive(const std::vector<float> &signal, size_t spacing = 1, size_t offset = 0) {
+
+                const size_t N = signal.size() / spacing;
+
+                if (N == 1) {
+                    return { signal[offset] };
+                }
+                
+                const auto evenFFT = fftRecursive(signal, spacing * 2, offset);
+                const auto oddFFT = fftRecursive(signal, spacing * 2, offset + spacing);
+
+                std::vector<std::complex<float>> result(N);
+
+                for (size_t i = 0; i < N; i++) {
+                    result[i] = evenFFT[i % (N / 2)] + oddFFT[i % (N / 2)] * std::polar(1.0f, -2.0f * PI * (static_cast<float>(i) / N));
+                }
+
+                return result;
             }
+        }
+
+        std::vector<std::complex<float>> fft(std::vector<float> signal) {
 
             // Zero-pad the signal to reach a length which is a power of 2
             int msb = 0;
@@ -94,27 +113,7 @@ namespace Vizu {
                 signal.resize(1 << (msb + 1));
             }
 
-            const size_t N = signal.size();
-
-            std::vector<float> evenSamples(N / 2), oddSamples(N / 2);
-            for (size_t i = 0; i < N; i++) {
-                if (i % 2 == 0) {
-                    evenSamples[i / 2] = signal[i];
-                } else {
-                    oddSamples[i / 2] = signal[i];
-                }
-            }
-            
-            const auto evenFFT = fft(std::move(evenSamples));
-            const auto oddFFT = fft(std::move(oddSamples));
-
-            std::vector<std::complex<float>> result(N);
-
-            for (size_t i = 0; i < N; i++) {
-                result[i] = evenFFT[i % (N / 2)] + oddFFT[i % (N / 2)] * std::polar(1.0f, -2.0f * PI * (static_cast<float>(i) / N));
-            }
-
-            return result;
+            return fftRecursive(signal);
         }
 
         float flux(const std::vector<float> &dftCurr, const std::vector<float> &dftPrev) {
@@ -168,7 +167,7 @@ namespace Vizu {
             }
 
             size_t freqBins = dftWindows[0].size();
-            return detectOnsets(dftWindows, 0.375f * freqBins);
+            return detectOnsets(dftWindows, 0.35f * freqBins);
         }
     }
 
