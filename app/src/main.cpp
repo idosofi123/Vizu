@@ -22,7 +22,7 @@ int main() {
     sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\tikva.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\totp.wav")) {
         return -1;
     }
 

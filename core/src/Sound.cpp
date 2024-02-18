@@ -168,7 +168,7 @@ namespace Vizu {
             }
 
             size_t freqBins = dftWindows[0].size();
-            return detectOnsets(dftWindows, 0.55f * freqBins);
+            return detectOnsets(dftWindows, 0.375f * freqBins);
         }
     }
 
