@@ -21,6 +21,6 @@ namespace Vizu {
         float flux(const std::vector<float> &dftCurr, const std::vector<float> &dftPrev);
 
         // Eventually this will be the only public function, leaving the others public now for testing purposes
-        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps);
+        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps, float threshold);
     }
 }

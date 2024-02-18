@@ -9,7 +9,7 @@ int main() {
 
     constexpr unsigned int FPS = 60;
     constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
-
+    constexpr float ONSET_DETECTION_THRESHOLD = 0.35f;
     constexpr float BALL_RADIUS = 10.0f;
     constexpr float GRAVITATIONAL_FORCE = 0.15f;
     constexpr float BALL_HORIZONTAL_VEL = 4.0f;
@@ -31,7 +31,7 @@ int main() {
         signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
     }
 
-    auto keyFrameIds = Vizu::Sound::detectedOnsetFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS);
+    auto keyFrameIds = Vizu::Sound::detectedOnsetFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS, ONSET_DETECTION_THRESHOLD);
     Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, BALL_RADIUS, GRAVITATIONAL_FORCE, BALL_HORIZONTAL_VEL, ENERGY_LOSS_FACTOR);
 
     sf::Font font;

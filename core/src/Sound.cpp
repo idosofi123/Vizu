@@ -146,7 +146,7 @@ namespace Vizu {
             return result;
         }
 
-        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps) {
+        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps, float threshold) {
 
             audioSignal = toMonoSignal(audioSignal, channels);
 
@@ -167,7 +167,7 @@ namespace Vizu {
             }
 
             size_t freqBins = dftWindows[0].size();
-            return detectOnsets(dftWindows, 0.35f * freqBins);
+            return detectOnsets(dftWindows, threshold * freqBins);
         }
     }
 
