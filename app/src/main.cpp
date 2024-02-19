@@ -2,28 +2,31 @@
 #include <SFML/Audio.hpp>
 #include <VizuCore/SimulationMap.hpp>
 #include <VizuCore/Sound.hpp>
+#include "ui/Spectrum.hpp"
+#include "config/Configuration.hpp"
 #include <vector>
 #include <deque>
-#include "ui/Spectrum.hpp"
+#include <iostream>
 
 int main() {
 
-    constexpr unsigned int FPS = 60;
-    constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
-    constexpr float ONSET_DETECTION_THRESHOLD = 0.3f;
-    constexpr float BALL_RADIUS = 10.0f;
-    constexpr float GRAVITATIONAL_FORCE = 0.15f;
-    constexpr float BALL_HORIZONTAL_VEL = 4.0f;
-    constexpr float ENERGY_LOSS_FACTOR = 0.7f;
-    constexpr int BALL_TRAIL_LENGTH = 10;
+    Configuration::RunConfiguration config;
+    try {
+        config = Configuration::loadConfiguration();
+    } catch (std::runtime_error &ex) {
+        std::cout << ex.what() << std::endl;
+        return -1;
+    }
+    
+    const float SECONDS_PER_FRAME = 1.0f / config.fps;
 
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 16;
+    settings.antialiasingLevel = config.antialiasingLevel;
 
-    sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
+    sf::RenderWindow window{ { config.windowWidth, config.windowHeight }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\florina.wav")) {
+    if (!soundBuffer.loadFromFile(config.soundFilePath)) {
         return -1;
     }
 
@@ -32,15 +35,20 @@ int main() {
         signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
     }
 
-    auto frequencyFrames = Vizu::Sound::generateFrequencyFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS);
-    auto keyFrameIds = Vizu::Sound::detectOnsets(frequencyFrames, ONSET_DETECTION_THRESHOLD);
+    auto frequencyFrames = Vizu::Sound::generateFrequencyFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), config.fps);
+    auto keyFrameIds = Vizu::Sound::detectOnsets(frequencyFrames, config.onsetDetectionThreshold);
 
-    Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, BALL_RADIUS, GRAVITATIONAL_FORCE, BALL_HORIZONTAL_VEL, ENERGY_LOSS_FACTOR);
+    Vizu::SimulationMap simulationMap(
+        config.fps,
+        keyFrameIds,
+        {100, 100},
+        config.ballRadius,
+        config.gravitationalForce,
+        config.ballHorizontalVelocity,
+        config.energyLossFactor
+    );
 
-    sf::Font font;
-    font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
-
-    sf::CircleShape ballTexture(BALL_RADIUS);
+    sf::CircleShape ballTexture(config.ballRadius);
     ballTexture.setFillColor(sf::Color::White);
 
     std::deque<Vizu::Vector<float>> ballTrail;
@@ -64,7 +72,12 @@ int main() {
         maxAmplitude = std::max(maxAmplitude, *std::max_element(window.begin(), window.begin() + window.size() / 2));
     }
 
-    Spectrum spectrum({50, 720 - 120}, {SPECTRUM_BARS * 2.0f, 120}, SPECTRUM_BARS, maxAmplitude);
+    Spectrum spectrum{
+        {50, static_cast<float>(static_cast<int>(config.windowHeight) - 120)},
+        {SPECTRUM_BARS * 2.0f, 120},
+        SPECTRUM_BARS, 
+        maxAmplitude
+    };
 
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
@@ -84,7 +97,7 @@ int main() {
         while (elapsedSeconds >= SECONDS_PER_FRAME) {
 
             ballTrail.push_back(simulationMap.getBall().getPosition());
-            if (ballTrail.size() > BALL_TRAIL_LENGTH) {
+            if (ballTrail.size() > config.ballTrailLength) {
                 ballTrail.pop_front();
             }
 
@@ -102,7 +115,7 @@ int main() {
         window.clear(sf::Color(20, 108, 148));
         
         const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
-        camera.setCenter(ballX + BALL_RADIUS / 2, ballY + BALL_RADIUS / 2);
+        camera.setCenter(ballX + config.ballRadius / 2, ballY + config.ballRadius / 2);
         window.setView(camera);
 
         for (const auto &platform : simulationMap.getPlatforms()) {

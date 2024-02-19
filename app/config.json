@@ -1,0 +1,13 @@
+{
+    "fps": 60,
+    "onsetDetectionThreshold": 0.4,
+    "ballRadius": 10.0,
+    "gravitationalForce": 0.15,
+    "ballHorizontalVelocity": 4.0,
+    "energyLossFactor": 0.7,
+    "ballTrailLength": 10,
+    "antialiasingLevel": 8,
+    "soundFilePath": "D:\\Users\\USER\\Downloads\\tikva.wav",
+    "windowWidth": 1280,
+    "windowHeight": 720
+}
