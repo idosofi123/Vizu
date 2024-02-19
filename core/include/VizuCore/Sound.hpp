@@ -17,10 +17,9 @@ namespace Vizu {
         std::vector<std::vector<float>> windowSignal(const std::vector<float> &signal, size_t windowSize, size_t hopSize, WindowFunctionType windowFunctionType);
         std::vector<float> dft(const std::vector<float> &signal);
         std::vector<std::complex<float>> fft(std::vector<float> signal);
-        std::vector<size_t> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold);
         float flux(const std::vector<float> &dftCurr, const std::vector<float> &dftPrev);
-
-        // Eventually this will be the only public function, leaving the others public now for testing purposes
-        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps, float threshold);
+        
+        std::vector<std::vector<float>> generateFrequencyFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps);
+        std::vector<size_t> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold);
     }
 }

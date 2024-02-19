@@ -10,7 +10,7 @@ int main() {
 
     constexpr unsigned int FPS = 60;
     constexpr float SECONDS_PER_FRAME = 1.0f / FPS;
-    constexpr float ONSET_DETECTION_THRESHOLD = 0.35f;
+    constexpr float ONSET_DETECTION_THRESHOLD = 0.3f;
     constexpr float BALL_RADIUS = 10.0f;
     constexpr float GRAVITATIONAL_FORCE = 0.15f;
     constexpr float BALL_HORIZONTAL_VEL = 4.0f;
@@ -23,7 +23,7 @@ int main() {
     sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\test.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\florina.wav")) {
         return -1;
     }
 
@@ -32,7 +32,9 @@ int main() {
         signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
     }
 
-    auto keyFrameIds = Vizu::Sound::detectedOnsetFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS, ONSET_DETECTION_THRESHOLD);
+    auto frequencyFrames = Vizu::Sound::generateFrequencyFrames(signal, soundBuffer.getSampleRate(), soundBuffer.getChannelCount(), FPS);
+    auto keyFrameIds = Vizu::Sound::detectOnsets(frequencyFrames, ONSET_DETECTION_THRESHOLD);
+
     Vizu::SimulationMap simulationMap(FPS, keyFrameIds, {100, 100}, BALL_RADIUS, GRAVITATIONAL_FORCE, BALL_HORIZONTAL_VEL, ENERGY_LOSS_FACTOR);
 
     sf::Font font;
@@ -44,10 +46,25 @@ int main() {
     std::deque<Vizu::Vector<float>> ballTrail;
 
     sf::RectangleShape platformTexture;
-    platformTexture.setOutlineThickness(-1);
-    platformTexture.setOutlineColor(sf::Color::Cyan);
 
-    Spectrum spectrum({1280 - 200, 720 - 100}, {150, 100}, 15, 100.0f);
+    constexpr size_t SPECTRUM_BARS = 150;
+    const size_t BINS_IN_BAR = (frequencyFrames[0].size() / 2) / SPECTRUM_BARS + !!((frequencyFrames[0].size() / 2) % SPECTRUM_BARS);
+
+    std::vector<std::vector<float>> condensedWindows(frequencyFrames.size(), std::vector<float>(SPECTRUM_BARS));
+    for (size_t i = 0; i < frequencyFrames.size(); i++) {
+        for (size_t j = 0; j < frequencyFrames[i].size() / 2; j++) {
+
+            // TODO: Handle last bar's avg calculation accurately
+            condensedWindows[i][j / BINS_IN_BAR] += frequencyFrames[i][j] / BINS_IN_BAR;
+        }
+    }
+
+    float maxAmplitude = 0.0f;
+    for (const auto &window : condensedWindows) {
+        maxAmplitude = std::max(maxAmplitude, *std::max_element(window.begin(), window.begin() + window.size() / 2));
+    }
+
+    Spectrum spectrum({50, 720 - 120}, {SPECTRUM_BARS * 2.0f, 120}, SPECTRUM_BARS, maxAmplitude);
 
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
@@ -82,7 +99,7 @@ int main() {
             }
         }
 
-        window.clear(sf::Color{0, 4, 53, 255});
+        window.clear(sf::Color(20, 108, 148));
         
         const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
         camera.setCenter(ballX + BALL_RADIUS / 2, ballY + BALL_RADIUS / 2);
@@ -93,7 +110,7 @@ int main() {
             const auto &[platformX, platformY] = platform.getPosition();
             platformTexture.setPosition(platformX, platformY);
             platformTexture.setSize({platform.getWidth(),  Vizu::Platform::PLATFORM_HEIGHT});
-            platformTexture.setFillColor(platform.getFrameId() <= currentFrame ? sf::Color::Magenta : sf::Color::Yellow);
+            platformTexture.setFillColor(platform.getFrameId() <= currentFrame ? sf::Color(25, 167, 206) : sf::Color::White);
             window.draw(platformTexture);
         }
 
@@ -108,7 +125,7 @@ int main() {
         window.draw(ballTexture);
 
         window.setView(window.getDefaultView());
-        spectrum.setBarHeights({50,100,50,100,50,100,50,100,50,100,50,100,50,100,50});
+        spectrum.setBarHeights(condensedWindows[std::min(static_cast<size_t>(currentFrame), condensedWindows.size() - 1)]);
         window.draw(spectrum);
 
         window.display();

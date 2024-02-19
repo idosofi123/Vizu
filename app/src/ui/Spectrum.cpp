@@ -4,7 +4,7 @@ Spectrum::Spectrum(sf::Vector2f position, sf::Vector2f size, int barCount, float
 
     for (size_t i = 0; i < barCount; i++) {
         sf::RectangleShape newBar;
-        newBar.setFillColor(sf::Color(255, 255, 255, 150));
+        newBar.setFillColor(sf::Color(255, 255, 255));
         this->bars.push_back(newBar);
     }
     

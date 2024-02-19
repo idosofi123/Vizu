@@ -132,6 +132,9 @@ namespace Vizu {
 
         std::vector<size_t> detectOnsets(const std::vector<std::vector<float>> &dftWindows, float threshold) {
 
+            // The threshold is factored by the amount of frequency bins
+            threshold *= dftWindows[0].size();
+
             std::vector<size_t> result;
             float currFlux{0}, prevFlux{0};
 
@@ -146,7 +149,7 @@ namespace Vizu {
             return result;
         }
 
-        std::vector<size_t> detectedOnsetFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps, float threshold) {
+        std::vector<std::vector<float>> generateFrequencyFrames(std::vector<float> audioSignal, int sampleRate, int channels, int fps) {
 
             audioSignal = toMonoSignal(audioSignal, channels);
 
@@ -166,8 +169,7 @@ namespace Vizu {
                 dftWindows.push_back(std::move(absoluteFft));
             }
 
-            size_t freqBins = dftWindows[0].size();
-            return detectOnsets(dftWindows, threshold * freqBins);
+            return dftWindows;            
         }
     }
 
