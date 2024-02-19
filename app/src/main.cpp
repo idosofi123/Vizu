@@ -4,6 +4,7 @@
 #include <VizuCore/Sound.hpp>
 #include <vector>
 #include <deque>
+#include "ui/Spectrum.hpp"
 
 int main() {
 
@@ -22,7 +23,7 @@ int main() {
     sf::RenderWindow window{ { 1280u, 720u }, "Vizu", sf::Style::Default, settings };
 
     sf::SoundBuffer soundBuffer;
-    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\totp.wav")) {
+    if (!soundBuffer.loadFromFile("D:\\Users\\USER\\Downloads\\test.wav")) {
         return -1;
     }
 
@@ -38,12 +39,15 @@ int main() {
     font.loadFromFile("D:\\Users\\USER\\Documents\\Wondershare\\Wondershare Filmora\\Download\\Fonts\\Roboto-regular.ttf");
 
     sf::CircleShape ballTexture(BALL_RADIUS);
+    ballTexture.setFillColor(sf::Color::White);
 
     std::deque<Vizu::Vector<float>> ballTrail;
 
     sf::RectangleShape platformTexture;
     platformTexture.setOutlineThickness(-1);
     platformTexture.setOutlineColor(sf::Color::Cyan);
+
+    Spectrum spectrum({1280 - 200, 720 - 100}, {150, 100}, 15, 100.0f);
 
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
@@ -79,6 +83,10 @@ int main() {
         }
 
         window.clear(sf::Color{0, 4, 53, 255});
+        
+        const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
+        camera.setCenter(ballX + BALL_RADIUS / 2, ballY + BALL_RADIUS / 2);
+        window.setView(camera);
 
         for (const auto &platform : simulationMap.getPlatforms()) {
 
@@ -94,15 +102,14 @@ int main() {
             ballTexture.setFillColor(sf::Color(255, 255, 255, (static_cast<float>(i + 1) / ballTrail.size()) * 100));
             window.draw(ballTexture);
         }
-        
 
-        const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
-        ballTexture.setFillColor(sf::Color::White);
         ballTexture.setPosition(ballX, ballY);
-        camera.setCenter(ballX + BALL_RADIUS / 2, ballY + BALL_RADIUS / 2);
-        window.setView(camera);
-
+        ballTexture.setFillColor(sf::Color::White);
         window.draw(ballTexture);
+
+        window.setView(window.getDefaultView());
+        spectrum.setBarHeights({50,100,50,100,50,100,50,100,50,100,50,100,50,100,50});
+        window.draw(spectrum);
 
         window.display();
     }

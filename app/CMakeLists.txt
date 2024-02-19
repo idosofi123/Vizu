@@ -4,6 +4,8 @@ project(VizuApp LANGUAGES CXX)
 
 set(SOURCE_FILE_LIST 
 "src/Main.cpp"
+"src/ui/Spectrum.hpp"
+"src/ui/Spectrum.cpp"
 )
 
 add_executable(VizuApp ${SOURCE_FILE_LIST})
