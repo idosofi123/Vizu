@@ -52,3 +52,10 @@ add_custom_command(
     COMMENT "Copy configuration file"
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/config.json $<TARGET_FILE_DIR:VizuApp>
     VERBATIM)
+
+# Copy assets folder to build
+add_custom_command(
+    TARGET VizuApp
+    POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${PROJECT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:VizuApp>/assets
+    VERBATIM)

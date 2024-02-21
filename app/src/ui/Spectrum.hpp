@@ -8,11 +8,12 @@ class Spectrum : public sf::Drawable {
         sf::Vector2f position;
         sf::Vector2f size;
         std::vector<sf::RectangleShape> bars;
-        float maxHeight;
+        std::vector<std::vector<float>> frameData;
+        float maxHeight = 0;
 
     public:
-        Spectrum(sf::Vector2f position, sf::Vector2f size, int barCount, float maxHeight);
+        Spectrum(sf::Vector2f position, sf::Vector2f size, int barCount, const std::vector<std::vector<float>> &frequencyWindows);
         ~Spectrum();
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-        void setBarHeights(const std::vector<float> &heights);
+        void setCurrentFrame(int frame);
 };

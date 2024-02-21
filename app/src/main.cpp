@@ -18,8 +18,6 @@ int main() {
         return -1;
     }
     
-    const float SECONDS_PER_FRAME = 1.0f / config.fps;
-
     sf::ContextSettings settings;
     settings.antialiasingLevel = config.antialiasingLevel;
 
@@ -27,10 +25,13 @@ int main() {
 
     sf::SoundBuffer soundBuffer;
     if (!soundBuffer.loadFromFile(config.soundFilePath)) {
+        std::cout << "Failed to load audio file" << std::endl;
         return -1;
     }
 
     std::vector<float> signal(soundBuffer.getSampleCount());
+
+    // Normalize signal values to [-1, 1]
     for (size_t i = 0; i < signal.size(); i++) {
         signal[i] = static_cast<float>(soundBuffer.getSamples()[i]) / INT16_MAX;
     }
@@ -56,44 +57,35 @@ int main() {
     sf::RectangleShape platformTexture;
 
     constexpr size_t SPECTRUM_BARS = 150;
-    const size_t BINS_IN_BAR = (frequencyFrames[0].size() / 2) / SPECTRUM_BARS + !!((frequencyFrames[0].size() / 2) % SPECTRUM_BARS);
-
-    std::vector<std::vector<float>> condensedWindows(frequencyFrames.size(), std::vector<float>(SPECTRUM_BARS));
-    for (size_t i = 0; i < frequencyFrames.size(); i++) {
-        for (size_t j = 0; j < frequencyFrames[i].size() / 2; j++) {
-
-            // TODO: Handle last bar's avg calculation accurately
-            condensedWindows[i][j / BINS_IN_BAR] += frequencyFrames[i][j] / BINS_IN_BAR;
-        }
-    }
-
-    float maxAmplitude = 0.0f;
-    for (const auto &window : condensedWindows) {
-        maxAmplitude = std::max(maxAmplitude, *std::max_element(window.begin(), window.begin() + window.size() / 2));
-    }
+    constexpr float SPECTRUM_HEIGHT = 150;
+    constexpr float SPECTRUM_BAR_WIDTH = 2;
 
     Spectrum spectrum{
-        {50, static_cast<float>(static_cast<int>(config.windowHeight) - 120)},
-        {SPECTRUM_BARS * 2.0f, 120},
-        SPECTRUM_BARS, 
-        maxAmplitude
+        {50, static_cast<int>(config.windowHeight) - SPECTRUM_HEIGHT},
+        {SPECTRUM_BARS * SPECTRUM_BAR_WIDTH, SPECTRUM_HEIGHT},
+        SPECTRUM_BARS,
+        frequencyFrames
     };
 
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
 
+
+    const float SECONDS_PER_FRAME = 1.0f / config.fps;
+    int currentFrame = 0;
+    float elapsedSeconds = 0;
+
     sf::Sound sound;
     sound.setBuffer(soundBuffer);
     sound.play();
 
-    int currentFrame = 0;
-    float elapsedSeconds = 0;
     sf::Clock clock;
 
     while (window.isOpen()) {
         
         elapsedSeconds += clock.restart().asSeconds();
 
+        // Update simulation state in accordance to the time passed since the last update tick
         while (elapsedSeconds >= SECONDS_PER_FRAME) {
 
             ballTrail.push_back(simulationMap.getBall().getPosition());
@@ -106,6 +98,7 @@ int main() {
             elapsedSeconds -= SECONDS_PER_FRAME;
         }
 
+        // Handle window events
         for (auto event = sf::Event{}; window.pollEvent(event);) {
             if (event.type == sf::Event::Closed) {
                 window.close();
@@ -114,10 +107,12 @@ int main() {
 
         window.clear(sf::Color(20, 108, 148));
         
+        // Set the camera to point at the ball's center point
         const auto& [ballX, ballY] = simulationMap.getBall().getPosition();
         camera.setCenter(ballX + config.ballRadius / 2, ballY + config.ballRadius / 2);
         window.setView(camera);
 
+        // Draw the note platforms
         for (const auto &platform : simulationMap.getPlatforms()) {
 
             const auto &[platformX, platformY] = platform.getPosition();
@@ -127,18 +122,21 @@ int main() {
             window.draw(platformTexture);
         }
 
+        // Draw the trail of the ball based on previous states
         for (size_t i = 0; i < ballTrail.size(); i++) {
             ballTexture.setPosition(ballTrail[i].x, ballTrail[i].y);
             ballTexture.setFillColor(sf::Color(255, 255, 255, (static_cast<float>(i + 1) / ballTrail.size()) * 100));
             window.draw(ballTexture);
         }
 
+        // Draw the actual ball
         ballTexture.setPosition(ballX, ballY);
         ballTexture.setFillColor(sf::Color::White);
         window.draw(ballTexture);
 
+        // Draw UI elements
         window.setView(window.getDefaultView());
-        spectrum.setBarHeights(condensedWindows[std::min(static_cast<size_t>(currentFrame), condensedWindows.size() - 1)]);
+        spectrum.setCurrentFrame(std::min<int>(currentFrame, frequencyFrames.size() - 1));
         window.draw(spectrum);
 
         window.display();
