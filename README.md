@@ -4,7 +4,9 @@
 Developed using C++ and the SFML library.
 
 ## Example Run
+Watch a demo!
 
+[![Video](https://img.youtube.com/vi/6vh7CZ3OkDs/hqdefault.jpg)](https://www.youtube.com/watch?v=6vh7CZ3OkDs)
 ## How to Build
 The project uses CMake as its build system.
 
