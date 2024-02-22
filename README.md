@@ -10,4 +10,7 @@ The project is composed of two main parts - an audio onset detection algorithm, 
 In the following section I will elaborate on each of these two main parts.
 
 ### Audio Onset Detection
-Vizu, as stated above, is mainly powered by a self-implemented audio onset detection algorithm which incorporates several known digital signal processing techniques. The 
+Vizu, as stated above, is mainly powered by a self-implemented audio onset detection algorithm which incorporates several known digital signal processing techniques. The code dedicated to it can be found in `core/src/Sound.cpp`.
+
+The algorithm is as follows:
+- **Segment the given signal into separated, overlapping windows**. This is
