@@ -70,7 +70,6 @@ int main() {
     sf::View camera;
     camera.setSize(static_cast<sf::Vector2f>(window.getSize()));
 
-
     const float SECONDS_PER_FRAME = 1.0f / config.fps;
     int currentFrame = 0;
     float elapsedSeconds = 0;
