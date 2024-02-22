@@ -1,7 +1,27 @@
 # Vizu
 *Automatic generation of cool graphical video representations of audio using digital signal processing techniques.*
 
-### Detailed Project Description
+Developed using C++ and the SFML library.
+
+## Example Run
+
+## How to Build
+The project uses CMake as its build system.
+
+For a single-configuration generator (typically the case on Linux and macOS):
+```
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+For a multi-configuration generator (typically the case on Windows):
+```
+cmake -S . -B build
+cmake --build build --config Release
+```
+The binary will be located in `build/bin/Release`. You can adjust the configuration file `config.json` to your liking and enjoy!
+
+
+## Detailed Project Description
 Vizu is a desktop program developed for educational purposes which, given an audio file, allows you to automatically generate a 2D animation which portrays a visual representation of the audio's onsets in a synchronized manner.
 This is mainly done by implementing several digital signal processing techniques and algorithms completely from scratch.
 
@@ -13,4 +33,4 @@ In the following section I will elaborate on each of these two main parts.
 Vizu, as stated above, is mainly powered by a self-implemented audio onset detection algorithm which incorporates several known digital signal processing techniques. The code dedicated to it can be found in `core/src/Sound.cpp`.
 
 The algorithm is as follows:
-- **Segment the given signal into separated, overlapping windows**. This is
+- **Segment the given signal into separated, overlapping windows**. This essentially assigns each frame with its corresponding audio segment. The windowing process has three parameters: hop size, window length size, and window function.
